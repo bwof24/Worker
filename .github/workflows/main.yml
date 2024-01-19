@@ -1,0 +1,33 @@
+name: Continuous Website Monitoring
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Run every 5 minutes
+  workflow_dispatch:  # Triggered manually, to keep the workflow always running
+
+jobs:
+  monitor-website:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check website status
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://5b3fb1be-9183-4d2c-9157-1eceb456a8d4-00-ipqk9ywvflsa.kirk.replit.dev/)
+          
+          if [ $status -eq 200 ]; then
+            echo "Website is up!"
+          else
+            echo "Website is down! Status code: $status"
+            # Add actions to handle downtime (e.g., notify, restart, etc.)
+          fi
